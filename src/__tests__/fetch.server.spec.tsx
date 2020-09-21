@@ -11,7 +11,6 @@ describe('useFetch', () => {
     it('should use ssr', async () => {
         const App = () => {
             const { data, loading } = useFetch<any>('https://jsonplaceholder.typicode.com/todos/1', { ssr: true });
-
             return <div>
                 <span>Loading {JSON.stringify(loading)}</span>
                 <span>Id {data?.userId}</span>
@@ -24,9 +23,5 @@ describe('useFetch', () => {
         expect(content).toEqual('<div><span>Loading false</span><span>Id 1</span></div>');
 
     });
-
-
-
-
 
 });

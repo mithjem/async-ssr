@@ -97,7 +97,7 @@ export function renderToStringWithAsyncData(tree: JSX.Element, renderFunction: (
     }
 
     return Promise.resolve().then(process).then(content => {
-        return { content, data: promises.resolved, rounds: count }
+        return new RenderResult(content, promises.resolved, count);
     })
 }
 
@@ -112,5 +112,12 @@ export class RenderResult {
 
     renderContent(id: string = 'app') {
         return `<div id="${id}">${this.content}</div>`
+    }
+
+    toString() {
+        return [
+            this.renderState(),
+            this.renderContent()
+        ].join('');
     }
 }

@@ -24,7 +24,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', refreshClient = true, ...rest } = optionsOrDependencyList as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ...rest } = optionsOrDependencyList || {} as FetchOptions;
 
     const controller = useRef<AbortController | null>(null);
     controller.current?.abort();

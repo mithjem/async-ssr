@@ -14,3 +14,7 @@ export function deferred<T>(): Deferred<T> {
     });
     return defer
 }
+const _has = Object.prototype.hasOwnProperty;
+export function has(object: any, prop: any): boolean {
+    return _has.call(object, prop)
+}

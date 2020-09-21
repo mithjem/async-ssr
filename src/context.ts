@@ -1,5 +1,7 @@
 import React from 'react';
 
+export const SHARED_STATE_KEY = "__ASYNC_SSR_STATE__"
+
 const asyncContextSymbol = typeof Symbol === 'function' && Symbol.for ?
     Symbol.for('__ASYNC_SSR_CONTEXT__') :
     '__ASYNC_SSR_CONTEXT__';

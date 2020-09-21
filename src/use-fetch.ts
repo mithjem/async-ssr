@@ -3,8 +3,6 @@ import stringify from 'fast-json-stable-stringify';
 import { useLoader } from './use-loader';
 import ky from 'ky-universal';
 
-
-
 export interface FetchResult<T> {
     loading: boolean;
     error?: Error;
@@ -12,8 +10,9 @@ export interface FetchResult<T> {
 }
 
 export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'> {
-    ssr?: boolean
-    type?: 'text' | 'blob' | 'json'
+    ssr?: boolean;
+    type?: 'text' | 'blob' | 'json';
+    refreshClient?: boolean;
 }
 
 export function useFetch<T>(url: string, options?: FetchOptions, dep?: any[]): FetchResult<T>;
@@ -25,14 +24,14 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', ...rest } = optionsOrDependencyList as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ...rest } = optionsOrDependencyList as FetchOptions;
 
     const controller = useRef<AbortController | null>(null);
     controller.current?.abort();
 
     controller.current = new AbortController();
 
-    (rest as any).abort = controller.current.abort;
+    (rest as any).signal = controller.current.signal;
 
     const ret = useLoader<T>(stringify({ url, request: rest }), () => {
         switch (type) {
@@ -42,7 +41,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         }
     }, {
         ssr,
-        refreshClient: true,
+        refreshClient,
     }, [ssr, optionsOrDependencyList, url, ...(dependencyList || [])]);
 
 

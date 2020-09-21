@@ -1,11 +1,25 @@
-import { AsyncQueue, AsyncResult, SHARED_STATE_KEY } from "./context";
+import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./context";
 import stringify from 'fast-json-stable-stringify';
 import { MemCache, Cache } from "./cache";
 import { deferred, Deferred, has } from "./util";
 import React from 'react';
 
-function loadState() {
-    const state = document.querySelector(`#${SHARED_STATE_KEY}`);
+
+export interface AsyncManagerProps {
+    cache?: Cache;
+    stateId?: string;
+}
+
+export function AsyncManager(props: React.PropsWithChildren<AsyncManagerProps>) {
+    const { cache, children, stateId = SHARED_STATE_KEY } = props;
+    const Context = getAsyncContext();
+    return <Context.Provider value={new ClientQueue(cache, stateId)}>
+        {children}
+    </Context.Provider>
+}
+
+function loadState(stateId: string) {
+    const state = document.querySelector(`#${stateId}`);
     if (!state) return {}
 
     try {
@@ -16,12 +30,11 @@ function loadState() {
 
 }
 
-
 export class ClientQueue implements AsyncQueue {
     #state: Record<string, any>;
     _queue: Record<string, Deferred<any>[]> = {};
-    constructor(private _cache = new MemCache) {
-        this.#state = loadState();
+    constructor(private _cache: Cache = new MemCache, stateId: string) {
+        this.#state = loadState(stateId);
     }
 
     async add<T>(key: any, init: () => Promise<T>, ttl: number): Promise<T> {
@@ -90,3 +103,4 @@ export class ClientQueue implements AsyncQueue {
         return { loading: false }
     }
 }
+

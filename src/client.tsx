@@ -2,6 +2,7 @@ import { AsyncQueue, AsyncResult, SHARED_STATE_KEY } from "./context";
 import stringify from 'fast-json-stable-stringify';
 import { MemCache, Cache } from "./cache";
 import { deferred, Deferred, has } from "./util";
+import React from 'react';
 
 function loadState() {
     const state = document.querySelector(`#${SHARED_STATE_KEY}`);

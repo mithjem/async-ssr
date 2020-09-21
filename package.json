@@ -6,9 +6,12 @@
   "sideEffects": false,
   "browser": "dist/async-ssr.js",
   "module": "dist/async-ssr.mjs",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "test": "node_modules/.bin/jest",
-    "build": "node_modules/.bin/rollup -c; node_modules/.bin/tsc"
+    "build": "node_modules/.bin/rollup -c; node_modules/.bin/tsc",
+    "prepare": "node_modules/.bin/rollup -c; node_modules/.bin/tsc",
+    "prepublishOnly": "node_modules/.bin/jest"
   },
   "author": "Rasmus Kildevaeld <rasmuskildevaeld@gmail.com>",
   "license": "MIT",

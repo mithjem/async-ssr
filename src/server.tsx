@@ -1,4 +1,4 @@
-import { AsyncQueue, AsyncResult, getAsyncContext } from "./context";
+import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./context";
 import React from 'react';
 import stringify from 'fast-json-stable-stringify';
 import { Cache, MemCache } from "./cache";
@@ -101,14 +101,16 @@ export function renderToStringWithAsyncData(tree: JSX.Element, renderFunction: (
     })
 }
 
+
+
 export class RenderResult {
     constructor(public content: string, public data: Record<string, any>, public rounds: number) { }
 
-    renderState() {
-        return `<script type="application/json">window.__ASYNC_STATE__ = ${JSON.stringify(this.data)}</script>`
+    renderState(id = SHARED_STATE_KEY) {
+        return `<script type="text/async-ssr-cache" id="${id}">${JSON.stringify(this.data)}</script>`
     }
 
-    renderContent(id: string) {
+    renderContent(id: string = 'app') {
         return `<div id="${id}">${this.content}</div>`
     }
 }

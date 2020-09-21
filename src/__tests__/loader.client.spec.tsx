@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { useLoader } from '../use-loader';
-import { ClientQueue } from '../client';
+import { AsyncManager, ClientQueue } from '../client';
 import React from 'react';
 import { act, ReactTestRenderer, create } from 'react-test-renderer';
 import { getAsyncContext, SHARED_STATE_KEY } from '../context';
@@ -27,7 +27,7 @@ describe('useLoader', () => {
         // 
 
         let content: ReactTestRenderer;
-        act(() => { content = create(<Context.Provider value={new ClientQueue}><App /></Context.Provider>) });
+        act(() => { content = create(<AsyncManager><App /></AsyncManager>) });
 
         let spans = content!.root.findAllByType('span');
 

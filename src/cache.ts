@@ -16,6 +16,7 @@ export class MemCache implements Cache {
         }
         return Promise.resolve(old?.data ?? null);
     }
+
     get<T>(key: string): Promise<T | null> {
         const item = this._cache[key];
         if (!item) {
@@ -25,10 +26,12 @@ export class MemCache implements Cache {
         let now = +new Date();
         if (now > item.expire) {
             delete this._cache[key];
-            return Promise.resolve(JSON.parse(item.data));
+            return Promise.resolve(null)
         }
-        return Promise.resolve(null)
+
+        return Promise.resolve(JSON.parse(item.data));
     }
+
     rm(key: string): Promise<any> {
         const old = this._cache[key];
         delete this._cache[key];

@@ -64,7 +64,7 @@ describe('Server', () => {
 
             const { content, rounds, data } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
             expect(rounds).toEqual(2);
-            expect(data).toEqual({ '"cache"': { data: 200 }, '"cache2"': { data: 42 } });
+            expect(data).toEqual({ 'cache': { data: 200 }, 'cache2': { data: 42 } });
             expect(content).toEqual('<div><span>Loading false</span><span>Name 200</span><div>Child 42</div></div>');
 
         });

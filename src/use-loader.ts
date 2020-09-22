@@ -14,7 +14,7 @@ export interface LoaderOptions {
     ttl?: number;
 }
 
-export function useLoader<T>(key: any, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
+export function useLoader<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
 
     const { ssr = true, refreshClient = false, ttl = 0 } = options;
     const { isServer } = useSSR();

@@ -22,7 +22,7 @@ describe('useLoader', () => {
         const script = document.createElement('script');
         script.id = SHARED_STATE_KEY;
         script.type = "text/async-cache";
-        script.textContent = JSON.stringify({ '"cache"': { data: 'Rasmus' } })
+        script.textContent = JSON.stringify({ 'cache': { data: 'Rasmus' } })
         document.head.appendChild(script);
         // 
 

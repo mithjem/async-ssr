@@ -1,5 +1,4 @@
 import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./context";
-import stringify from 'fast-json-stable-stringify';
 import { MemCache, Cache } from "./cache";
 import { deferred, Deferred, has } from "./util";
 import React from 'react';
@@ -37,18 +36,18 @@ export class ClientQueue implements AsyncQueue {
         this.#state = loadState(stateId);
     }
 
-    async add<T>(key: any, init: () => Promise<T>, ttl: number): Promise<T> {
-        const encodedKey = stringify(key);
+    async add<T>(key: string, init: () => Promise<T>, ttl: number): Promise<T> {
 
-        if (this._queue[encodedKey]) {
+
+        if (this._queue[key]) {
             let defer = deferred<T>();
-            this._queue[encodedKey].push(defer);
+            this._queue[key].push(defer);
             return defer.promise
         }
 
         const run = async () => {
-            const queue = this._queue[encodedKey];
-            delete this._queue[encodedKey];
+            const queue = this._queue[key];
+            delete this._queue[key];
 
             try {
                 const ret = await init();
@@ -65,16 +64,16 @@ export class ClientQueue implements AsyncQueue {
 
         };
 
-        this._queue[encodedKey] = [];
+        this._queue[key] = [];
 
         if (ttl <= 1000) {
             return await run()
         }
 
-        const cachedValue = await this._cache.get<T>(encodedKey);
+        const cachedValue = await this._cache.get<T>(key);
         if (cachedValue) {
-            const queue = this._queue[encodedKey] || [];
-            delete this._queue[encodedKey];
+            const queue = this._queue[key] || [];
+            delete this._queue[key];
             queue.forEach(listener => {
                 listener.resolve(cachedValue);
             });
@@ -83,20 +82,19 @@ export class ClientQueue implements AsyncQueue {
 
         const value = await run();
 
-        this._cache.set(encodedKey, value, ttl);
+        this._cache.set(key, value, ttl);
 
         return value;
 
     }
-    get<T>(key: any): AsyncResult<T> {
-        const encodedKey = stringify(key);
-        if (has(this.#state, encodedKey)) {
-            const data = this.#state[encodedKey];
-            delete this.#state[encodedKey];
+    get<T>(key: string): AsyncResult<T> {
+        if (has(this.#state, key)) {
+            const data = this.#state[key];
+            delete this.#state[key];
             return { ...data, loading: false }
         }
 
-        if (this._queue[encodedKey]) {
+        if (this._queue[key]) {
             return { loading: true }
         }
 

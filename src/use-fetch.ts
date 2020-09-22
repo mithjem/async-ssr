@@ -34,7 +34,9 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
 
     (rest as any).signal = controller.current.signal;
 
-    const ret = useLoader<T>(stringify({ url, request: rest }), () => {
+    const key = stringify({ url, request: rest })
+
+    const ret = useLoader<T>(key, () => {
         switch (type) {
             case 'json': return ky(url, rest).json()
             case 'text': return ky(url, rest).text() as any
@@ -44,7 +46,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         ssr,
         refreshClient,
         ttl
-    }, [ssr, optionsOrDependencyList, url, ...(dependencyList || [])]);
+    }, [ssr, ttl, key, url, ...(dependencyList || [])]);
 
 
     return ret;

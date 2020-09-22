@@ -13,6 +13,7 @@ export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'> {
     ssr?: boolean;
     type?: 'text' | 'blob' | 'json';
     refreshClient?: boolean;
+    ttl?: number;
 }
 
 export function useFetch<T>(url: string, options?: FetchOptions, dep?: any[]): FetchResult<T>;
@@ -24,7 +25,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', refreshClient = true, ...rest } = optionsOrDependencyList || {} as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ttl, ...rest } = optionsOrDependencyList || {} as FetchOptions;
 
     const controller = useRef<AbortController | null>(null);
     controller.current?.abort();
@@ -42,6 +43,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     }, {
         ssr,
         refreshClient,
+        ttl
     }, [ssr, optionsOrDependencyList, url, ...(dependencyList || [])]);
 
 

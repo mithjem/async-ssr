@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import stringify from 'fast-json-stable-stringify';
-import { useLoader } from './use-loader';
+import { LoaderOptions, useLoader } from './use-loader';
 import ky from 'ky-universal';
 
 export interface FetchResult<T> {
@@ -9,11 +9,8 @@ export interface FetchResult<T> {
     data?: T;
 }
 
-export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'> {
-    ssr?: boolean;
+export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'>, LoaderOptions {
     type?: 'text' | 'blob' | 'json';
-    refreshClient?: boolean;
-    ttl?: number;
 }
 
 export function useFetch<T>(url: string, options?: FetchOptions, dep?: any[]): FetchResult<T>;
@@ -46,7 +43,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         ssr,
         refreshClient,
         ttl
-    }, [ssr, ttl, key, url, ...(dependencyList || [])]);
+    }, [key, url, ...(dependencyList || [])]);
 
 
     return ret;

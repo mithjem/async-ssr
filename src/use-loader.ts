@@ -9,9 +9,33 @@ export interface LoaderResult<T> {
 }
 
 export interface LoaderOptions {
+    /**
+     * If the request should be performed at server side rendering
+     *
+     * @type {boolean}
+     * @memberof LoaderOptions
+     */
     ssr?: boolean;
+    /**
+     * If the client should refresh the request on client side render,
+
+     * @type {boolean}
+     * @memberof LoaderOptions
+     */
     refreshClient?: boolean
+    /**
+     * Sets the cache time in ms. 
+     * A cache time at zero or below, disables it
+     * @type {number}
+     * @memberof LoaderOptions
+     */
     ttl?: number;
+    /**
+     * If the request should be initiated. Can be use for conditional making the request
+     *
+     * @type {boolean}
+     * @memberof LoaderOptions
+     */
     enabled?: boolean;
 }
 

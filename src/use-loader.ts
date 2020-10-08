@@ -12,15 +12,16 @@ export interface LoaderOptions {
     ssr?: boolean;
     refreshClient?: boolean
     ttl?: number;
+    enabled?: boolean;
 }
 
 export function useLoader<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
 
-    const { ssr = true, refreshClient = false, ttl = 0 } = options;
+    const { ssr = true, refreshClient = false, ttl = 0, enabled = true } = options;
     const { isServer } = useSSR();
 
-    if (isServer && !ssr) {
-        return { loading: true }
+    if (isServer && (!ssr || !enabled)) {
+        return enabled ? { loading: true } : { loading: false }
     }
 
     const ctx = useContext(getAsyncContext());
@@ -33,10 +34,15 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
     }
 
     const [state, setState] = useState<AsyncResult<T>>(ctx.get(key) ?? {
-        loading: true
+        loading: enabled
     })
 
     useEffect(() => {
+
+        if (!enabled) {
+            return
+        }
+
         ctx.add(key, init, ttl).then(data => {
             setState({
                 loading: false,
@@ -48,7 +54,7 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
                 error
             })
         })
-    }, deps ?? []);
+    }, (deps ?? []).concat(enabled));
 
 
     return state

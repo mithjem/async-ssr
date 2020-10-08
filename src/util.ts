@@ -1,3 +1,4 @@
+import { useEffect, useLayoutEffect } from 'react';
 
 
 export interface Deferred<T> {
@@ -18,3 +19,7 @@ const _has = Object.prototype.hasOwnProperty;
 export function has(object: any, prop: any): boolean {
     return _has.call(object, prop)
 }
+
+
+export const useIsomorphicLayoutEffect =
+    typeof window !== 'undefined' ? useLayoutEffect : useEffect

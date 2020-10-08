@@ -24,8 +24,6 @@ export default [{
           declaration: false
         }
       }
-    }),
-    // resolve(),
-    // commonjs(),
+    })
   ]
 }]

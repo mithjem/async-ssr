@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "fast-json-stable-stringify": "^2.1.0",
-    "ky": "^0.23.0",
+    "ky": "^0.24.0",
     "ky-universal": "^0.8.2",
     "use-ssr": "^1.0.23"
   },

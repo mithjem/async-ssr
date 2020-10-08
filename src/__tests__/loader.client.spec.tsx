@@ -3,9 +3,17 @@
  */
 import { useLoader } from '../use-loader';
 import { AsyncManager, ClientQueue } from '../client';
-import React from 'react';
+import React, { useState } from 'react';
 import { act, ReactTestRenderer, create } from 'react-test-renderer';
 import { getAsyncContext, SHARED_STATE_KEY } from '../context';
+import {
+    cleanup,
+    fireEvent,
+    render,
+    waitFor,
+    act as tlact
+} from "@testing-library/react";
+
 
 describe('useLoader', () => {
     const Context = getAsyncContext();
@@ -36,7 +44,38 @@ describe('useLoader', () => {
 
     });
 
+    it('should not initiate loading, when not enabled', async () => {
+
+        const fn = jest.fn().mockResolvedValueOnce("Rasmus");
+
+        const App = () => {
+            const [enabled, setEnabled] = useState(false);
+            const { data, loading } = useLoader("cache3", fn, { ssr: false, enabled });
+            return <div>
+                <button onClick={() => setEnabled(!enabled)}>Fetch</button>
+                <span data-testid="loading">Loading {JSON.stringify(loading)}</span>
+                {data && <span data-testid="data">Name {data}</span>}
+            </div>
+        };
 
 
+        const { getByText, getByTestId, findByTestId } = render(<AsyncManager><App /></AsyncManager>);
+
+        expect(getByTestId('loading').textContent).toEqual('Loading false');
+        await expect(findByTestId("data")).rejects.toThrow();
+
+        const btn = getByText('Fetch');
+        tlact(() => {
+            fireEvent.click(btn);
+        })
+
+
+        await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+        expect((await findByTestId("data")).textContent).toEqual("Name Rasmus");
+
+
+    });
+
+    afterEach(cleanup);
 
 });

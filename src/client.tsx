@@ -4,6 +4,8 @@ import { deferred, Deferred, has } from "./util";
 import React from 'react';
 
 
+export const MINIMUM_TTL = 1000;
+
 export interface AsyncManagerProps {
     cache?: Cache;
     stateId?: string;
@@ -66,7 +68,7 @@ export class ClientQueue implements AsyncQueue {
 
         this._queue[key] = [];
 
-        if (ttl <= 1000) {
+        if (ttl <= MINIMUM_TTL) {
             return await run()
         }
 

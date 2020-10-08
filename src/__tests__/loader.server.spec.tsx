@@ -69,6 +69,24 @@ describe('Server', () => {
 
         });
 
+        it('should not load, when not enabled', async () => {
+
+            const App = () => {
+                const { data, loading } = useLoader("cache", () => Promise.resolve(200), { ssr: true, enabled: false });
+                return <div>
+                    <span>Loading {JSON.stringify(loading)}</span>
+                    {!!data && <span>Name {data}</span>}
+                </div>
+            }
+
+            const { content, rounds, data } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+
+            expect(rounds).toEqual(1);
+            expect(data).toEqual({});
+            expect(content).toEqual('<div><span>Loading false</span></div>');
+
+        });
+
 
     });
 })

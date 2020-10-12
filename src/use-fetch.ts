@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import stringify from 'fast-json-stable-stringify';
 import { LoaderOptions, useLoader } from './use-loader';
 import ky from 'ky-universal';
+import { omit } from './util';
 
 export interface FetchResult<T> {
     loading: boolean;
@@ -22,7 +23,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', refreshClient = true, ttl, ...rest } = optionsOrDependencyList || {} as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ttl, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions;
 
     const controller = useRef<AbortController | null>(null);
     controller.current?.abort();
@@ -31,7 +32,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
 
     (rest as any).signal = controller.current.signal;
 
-    const key = stringify({ url, request: rest })
+    const key = stringify({ url, request: omit(rest, ['signal']) })
 
     const ret = useLoader<T>(key, () => {
         switch (type) {
@@ -42,7 +43,8 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     }, {
         ssr,
         refreshClient,
-        ttl
+        ttl,
+        enabled,
     }, [key, url, ...(dependencyList || [])]);
 
 

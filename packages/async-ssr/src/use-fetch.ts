@@ -30,6 +30,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     const key = stringify({ url, request: omit(rest, ['signal']) })
 
     const ret = useLoader<T>(key, () => {
+        console.log(controller.current);
         controller.current?.abort();
         controller.current = new AbortController();
         (rest as any).signal = controller.current.signal;
@@ -45,7 +46,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         enabled,
     }, [key, url, ...(dependencyList || [])]);
 
-    if (!ret.loading) {
+    if (!ret.loading && !refreshClient) {
         controller.current = null;
     }
 

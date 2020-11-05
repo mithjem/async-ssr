@@ -1,0 +1,41 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc && node_modules/.bin/webpack",
+    "watch": "node index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-typescript": "^7.12.1",
+    "@babel/register": "^7.12.1",
+    "@loadable/component": "^5.14.1",
+    "@loadable/server": "^5.14.0",
+    "@mithjem/async-ssr": "*",
+    "@types/koa": "^2.11.6",
+    "@types/koa-webpack": "^6.0.0",
+    "@types/loadable__server": "^5.12.3",
+    "@types/react": "^16.9.55",
+    "@types/react-dom": "^16.9.9",
+    "@types/react-helmet": "^6.1.0",
+    "babel-loader": "^8.1.0",
+    "koa": "^2.13.0",
+    "koa-webpack": "^6.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-helmet": "^6.1.0",
+    "tslib": "^2.0.3",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.2"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.12.5"
+  }
+}

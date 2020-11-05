@@ -86,47 +86,46 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
 }
 
 
-export function useLoader2<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
+// export function useLoader2<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
 
-    const { ssr = true, refreshClient = false, ttl = 0, enabled = true } = options;
-    const { isServer } = useSSR();
+//     const { ssr = true, refreshClient = false, ttl = 0, enabled = true } = options;
+//     const { isServer } = useSSR();
 
-    if (isServer && (!ssr || !enabled)) {
-        return enabled ? { loading: true } : { loading: false }
-    }
+//     if (isServer && (!ssr || !enabled)) {
+//         return enabled ? { loading: true } : { loading: false }
+//     }
 
-    const ctx = useContext(getAsyncContext());
+//     const ctx = useContext(getAsyncContext());
 
-    if (isServer) {
-        ctx.add(key, init, ttl);
-        return ctx.get(key);
-    } else if (!isServer && ssr && !refreshClient) {
-        return ctx.get(key);
-    }
+//     if (isServer) {
+//         ctx.add(key, init, ttl);
+//         return ctx.get(key);
+//     } /*else if (!isServer && ssr && !refreshClient) {
+//         return ctx.get(key);
+//     }*/
 
-    const [state, setState] = useState<AsyncResult<T>>(ctx.get(key) ?? {
-        loading: enabled
-    })
+//     const [state, setState] = useState<AsyncResult<T>>(ctx.get(key) ?? {
+//         loading: enabled
+//     })
 
-    useEffect(() => {
+//     useEffect(() => {
 
-        if (!enabled) {
-            return
-        }
+//         if (!enabled) {
+//             return
+//         }
 
-        ctx.add(key, init, ttl).then(data => {
-            setState({
-                loading: false,
-                data,
-            })
-        }, error => {
-            setState({
-                loading: false,
-                error
-            })
-        })
-    }, (deps ?? []).concat(enabled));
+//         ctx.add(key, init, ttl).then(data => {
+//             setState({
+//                 loading: false,
+//                 data,
+//             })
+//         }, error => {
+//             setState({
+//                 loading: false,
+//                 error
+//             })
+//         })
+//     }, (deps ?? []).concat(enabled));
 
-
-    return state
-}
+//     return state
+// }

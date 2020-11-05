@@ -27,8 +27,6 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
 
     const controller = useRef<AbortController | null>(null);
 
-
-
     const key = stringify({ url, request: omit(rest, ['signal']) })
 
     const ret = useLoader<T>(key, () => {

@@ -97,7 +97,7 @@ export class ClientQueue implements AsyncQueue {
 
         if (has(this.#state, key)) {
             const data = this.#state[key];
-            delete this.#state[key];
+            // delete this.#state[key];
             return { ...data, loading: false }
         }
 

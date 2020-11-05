@@ -1,53 +1,11 @@
 {
-  "name": "@mithjem/async-ssr",
-  "version": "0.0.8",
-  "description": "",
-  "main": "index.js",
-  "sideEffects": false,
-  "browser": "dist/async-ssr.js",
-  "module": "dist/async-ssr.mjs",
-  "typings": "lib/index.d.ts",
-  "scripts": {
-    "test": "node_modules/.bin/jest",
-    "build": "node_modules/.bin/rollup -c; node_modules/.bin/tsc",
-    "prepare": "node_modules/.bin/rollup -c; node_modules/.bin/tsc",
-    "prepublishOnly": "node_modules/.bin/jest"
-  },
-  "author": "Rasmus Kildevaeld <rasmuskildevaeld@gmail.com>",
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mithjem/async-ssr.git"
-  },
+  "name": "root",
+  "private": true,
   "devDependencies": {
-    "@testing-library/react": "^11.0.4",
-    "@types/jest": "^26.0.14",
-    "@types/react": "^16.9.49",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-test-renderer": "^16.9.3",
-    "jest": "^26.4.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-test-renderer": "^16.13.1",
-    "rollup": "^2.28.1",
-    "rollup-plugin-peer-deps-external": "^2.2.3",
-    "rollup-plugin-typescript2": "^0.27.2",
-    "ts-jest": "^26.3.0",
-    "tslib": "^2.0.1",
-    "typescript": "^4.0.2"
+    "concurrently": "^5.2.0",
+    "lerna": "^3.22.1"
   },
-  "dependencies": {
-    "fast-json-stable-stringify": "^2.1.0",
-    "ky": "^0.24.0",
-    "ky-universal": "^0.8.2",
-    "use-ssr": "^1.0.23"
-  },
-  "peerDependencies": {
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
-    "tslib": "^2.0.1"
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }

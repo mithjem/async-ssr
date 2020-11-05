@@ -90,15 +90,18 @@ export class ClientQueue implements AsyncQueue {
 
     }
     get<T>(key: string): AsyncResult<T> {
+
+        if (this._queue[key]) {
+            return { loading: true }
+        }
+
         if (has(this.#state, key)) {
             const data = this.#state[key];
             delete this.#state[key];
             return { ...data, loading: false }
         }
 
-        if (this._queue[key]) {
-            return { loading: true }
-        }
+
 
         return { loading: false }
     }

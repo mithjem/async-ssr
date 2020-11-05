@@ -26,15 +26,15 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     const { ssr = true, type = 'json', refreshClient = true, ttl, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions;
 
     const controller = useRef<AbortController | null>(null);
-    controller.current?.abort();
 
-    controller.current = new AbortController();
 
-    (rest as any).signal = controller.current.signal;
 
     const key = stringify({ url, request: omit(rest, ['signal']) })
 
     const ret = useLoader<T>(key, () => {
+        controller.current?.abort();
+        controller.current = new AbortController();
+        (rest as any).signal = controller.current.signal;
         switch (type) {
             case 'json': return ky(url, rest).json()
             case 'text': return ky(url, rest).text() as any
@@ -46,6 +46,12 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         ttl,
         enabled,
     }, [key, url, ...(dependencyList || [])]);
+
+    if (!ret.loading) {
+        controller.current = null;
+    }
+
+
 
 
     return ret;

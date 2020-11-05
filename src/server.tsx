@@ -95,7 +95,7 @@ export function renderToStringWithAsyncData(tree: JSX.Element, renderFunction: (
 
     return Promise.resolve().then(process).then(content => {
         return new RenderResult(content, promises.resolved, count);
-    })
+    });
 }
 
 

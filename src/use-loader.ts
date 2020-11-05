@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import useSSR from "use-ssr";
 import { AsyncResult, getAsyncContext } from "./context";
 
@@ -40,6 +40,53 @@ export interface LoaderOptions {
 }
 
 export function useLoader<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
+
+    const { ssr = true, refreshClient = false, ttl = 0, enabled = true } = options;
+    const { isServer } = useSSR();
+    const currentKey = useRef<string | null>(null)
+
+    if (isServer && (!ssr || !enabled)) {
+        return enabled ? { loading: true } : { loading: false }
+    }
+
+    const ctx = useContext(getAsyncContext());
+
+    if (isServer) {
+        ctx.add(key, init, ttl);
+        return ctx.get(key);
+    } else if (!isServer && ssr && !refreshClient) {
+        return ctx.get(key);
+    }
+
+    const [state, setState] = useState<AsyncResult<T>>(ctx.get(key) ?? {
+        loading: enabled
+    })
+
+    useEffect(() => {
+
+        if (!enabled) {
+            return
+        }
+
+        ctx.add(key, init, ttl).then(data => {
+            setState({
+                loading: false,
+                data,
+            })
+        }, error => {
+            setState({
+                loading: false,
+                error
+            })
+        })
+    }, (deps ?? []).concat(enabled));
+
+
+    return state
+}
+
+
+export function useLoader2<T>(key: string, init: () => Promise<T>, options: LoaderOptions = {}, deps?: any[]): LoaderResult<T> {
 
     const { ssr = true, refreshClient = false, ttl = 0, enabled = true } = options;
     const { isServer } = useSSR();

@@ -53,18 +53,19 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
 
     if (isServer) {
         ctx.add(key, init, ttl);
+        return ctx.get(key) as LoaderResult<T>;
+    } /*else if (!isServer && ssr && !refreshClient) {
         return ctx.get(key);
-    } else if (!isServer && ssr && !refreshClient) {
-        return ctx.get(key);
-    }
+    }*/
 
     const [state, setState] = useState<AsyncResult<T>>(ctx.get(key) ?? {
-        loading: enabled
+        loading: enabled,
+
     })
 
     useEffect(() => {
 
-        if (!enabled) {
+        if (!enabled || (ssr && !refreshClient)) {
             return
         }
 
@@ -79,8 +80,7 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
                 error
             })
         })
-    }, (deps ?? []).concat(enabled));
-
+    }, (deps ?? []).concat(enabled, refreshClient));
 
     return state
 }

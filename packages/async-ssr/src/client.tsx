@@ -22,7 +22,6 @@ export function AsyncManager(props: React.PropsWithChildren<AsyncManagerProps>) 
 function loadState(stateId: string) {
     const state = document.querySelector(`#${stateId}`);
     if (!state) return {}
-
     try {
         return JSON.parse(state.textContent || '')
     } catch {
@@ -89,7 +88,7 @@ export class ClientQueue implements AsyncQueue {
         return value;
 
     }
-    get<T>(key: string): AsyncResult<T> {
+    get<T>(key: string): AsyncResult<T> | null {
 
         if (this._queue[key]) {
             return { loading: true }
@@ -97,13 +96,12 @@ export class ClientQueue implements AsyncQueue {
 
         if (has(this.#state, key)) {
             const data = this.#state[key];
-            // delete this.#state[key];
             return { ...data, loading: false }
         }
 
 
 
-        return { loading: false }
+        return null
     }
 }
 

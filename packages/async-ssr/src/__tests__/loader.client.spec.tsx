@@ -2,10 +2,10 @@
  * @jest-environment jsdom
  */
 import { useLoader } from '../use-loader';
-import { AsyncManager, ClientQueue } from '../client';
+import { AsyncManager } from '../client';
 import React, { useState } from 'react';
 import { act, ReactTestRenderer, create } from 'react-test-renderer';
-import { getAsyncContext, SHARED_STATE_KEY } from '../context';
+import { SHARED_STATE_KEY } from '../context';
 import {
     cleanup,
     fireEvent,
@@ -16,7 +16,7 @@ import {
 
 
 describe('useLoader', () => {
-    const Context = getAsyncContext();
+
     it('should use ssr', async () => {
 
         const fn = jest.fn().mockResolvedValueOnce("Rasmus");
@@ -70,18 +70,11 @@ describe('useLoader', () => {
         script.type = "text/async-cache";
         script.textContent = JSON.stringify({ 'cache': { data: 'Rasmus' } })
         document.head.appendChild(script);
-        // 
 
-        // let content: ReactTestRenderer;
-        // act(() => { content = create(<AsyncManager><App /></AsyncManager>) });
 
-        // let spans = content!.root.findAllByType('span');
+        // const { getByText, getByTestId, findByTestId } = render(<AsyncManager><App /></AsyncManager>);
 
-        // expect(spans[0].children).toEqual(['Loading ', 'false']);
-        // expect(spans[1].children).toEqual(['Name ', 'Rasmus']);
-
-        const { getByText, getByTestId, findByTestId } = render(<AsyncManager><App /></AsyncManager>);
-
+        render(<AsyncManager><App /></AsyncManager>);
         await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
 
 

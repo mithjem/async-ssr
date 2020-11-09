@@ -23,7 +23,7 @@ export interface AsyncResult<T> {
 
 export interface AsyncQueue {
     add<T>(key: string, init: () => Promise<T>, ttl: number): Promise<T>;
-    get<T>(key: string): AsyncResult<T>
+    get<T>(key: string): AsyncResult<T> | null;
 }
 
 export function getAsyncContext() {

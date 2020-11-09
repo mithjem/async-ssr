@@ -10,12 +10,13 @@ export default function App() {
 
     const { loading, error, data } = useFetch<any>('http://ip.jsontest.com/', {
         refreshClient: refresh,
-        ssr: true
+        ssr: true,
+        ttl: 10000
     });
 
     renderCount.current++;
 
-    console.log(loading, data);
+    console.log(loading, data, error);
 
     return <div>
         {loading && "Loading..."}

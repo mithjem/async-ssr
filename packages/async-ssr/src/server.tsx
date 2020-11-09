@@ -2,16 +2,14 @@ import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./co
 import React from 'react';
 import { Cache, MemCache } from "./cache";
 
-
-
 export class ServerAsyncQueue implements AsyncQueue {
     constructor(private _queue: RenderPromise) { }
 
-    add<T>(key: string, init: () => Promise<T>, ttl: number): Promise<T> {
+    add<T>(key: string, init: () => Promise<T>, _ttl: number): Promise<T> {
         this._queue.add(key, init);
         return Promise.resolve(void 0 as any);
     }
-    get<T>(key: string): AsyncResult<T> {
+    get<T>(key: string): AsyncResult<T> | null {
         const data = this._queue.get<T>(key);
         return data ? { ...data, loading: false } : { loading: true }
     }

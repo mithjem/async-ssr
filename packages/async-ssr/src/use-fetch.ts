@@ -1,8 +1,8 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import stringify from 'fast-json-stable-stringify';
 import { LoaderOptions, useLoader } from './use-loader';
 import ky from 'ky-universal';
-import { omit } from './util';
+import { isCancel, omit } from './util';
 
 export interface FetchResult<T> {
     loading: boolean;
@@ -30,7 +30,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     const key = stringify({ url, request: omit(rest, ['signal']) })
 
     const ret = useLoader<T>(key, () => {
-        console.log(controller.current);
+
         controller.current?.abort();
         controller.current = new AbortController();
         (rest as any).signal = controller.current.signal;
@@ -50,7 +50,22 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         controller.current = null;
     }
 
+    useEffect(() => {
+        return () => {
+            controller.current?.abort();
+            controller.current = null;
+        }
+    }, []);
 
+    // If we have an abort error, this mean the user have made a new request.
+    // As this is not an error, we should tell the user
+    // that we are waiting on another request
+    // So we should return a loading state
+    if (isCancel(ret.error)) {
+        return {
+            loading: true
+        }
+    }
 
 
     return ret;

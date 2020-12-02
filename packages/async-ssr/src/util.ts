@@ -31,3 +31,10 @@ export function omit<T, K extends keyof T>(o: T, args: K[]): Omit<T, K> {
 
 export const useIsomorphicLayoutEffect =
     typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+
+const _DOMException: any = typeof window !== 'undefined' ? DOMException : require('domexception');
+
+export function isCancel(error: any) {
+    return error && error instanceof _DOMException && error.code == _DOMException.code == _DOMException.ABORT_ERR;
+}

@@ -36,5 +36,5 @@ export const useIsomorphicLayoutEffect =
 const _DOMException: any = typeof window !== 'undefined' ? DOMException : require('domexception');
 
 export function isCancel(error: any) {
-    return error && error instanceof _DOMException && error.code == _DOMException.code == _DOMException.ABORT_ERR;
+    return error && error instanceof _DOMException && error.code === _DOMException.ABORT_ERR;
 }

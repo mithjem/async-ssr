@@ -36,5 +36,24 @@ export const useIsomorphicLayoutEffect =
 const _DOMException: any = typeof window !== 'undefined' ? DOMException : require('domexception');
 
 export function isCancel(error: any) {
-    return error && error instanceof _DOMException && error.code === _DOMException.ABORT_ERR;
+    return error && (error.isCanceled || (error instanceof _DOMException && error.code === _DOMException.ABORT_ERR));
 }
+
+
+export type CancelToken = () => void;
+
+export function makeCancelable<T, TResult1 = T, TResult2 = never>(promise: PromiseLike<T>, onfulfilled: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null, controller?: AbortController): CancelToken {
+    let hasCanceled = false;
+    new Promise((resolve, reject) => promise
+        .then(val => hasCanceled ? reject({ isCanceled: true }) : resolve(val), err => hasCanceled ? reject({ isCanceled: true }) : reject(err))
+
+    )
+        .then(onfulfilled as any)
+        .catch(err => { if (!isCancel(err)) { throw (err); } })
+        .catch(onrejected);
+    return function () {
+        if (controller)
+            controller.abort()
+        hasCanceled = true;
+    };
+};

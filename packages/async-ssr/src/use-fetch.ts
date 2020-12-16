@@ -3,6 +3,9 @@ import stringify from 'fast-json-stable-stringify';
 import { LoaderOptions, useLoader } from './use-loader';
 import ky from 'ky-universal';
 import { isCancel, omit } from './util';
+import { HttpError } from './error';
+
+
 
 export interface FetchResult<T> {
     loading: boolean;
@@ -34,11 +37,38 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         controller.current?.abort();
         controller.current = new AbortController();
         (rest as any).signal = controller.current.signal;
+
+        let request: Promise<any>;
         switch (type) {
-            case 'json': return ky(url, rest).json()
-            case 'text': return ky(url, rest).text() as any
-            case 'blob': return ky(url, rest).blob() as any
+            case 'json':
+                request = ky(url, rest).json();
+                break;
+            case 'text':
+                request = ky(url, rest).text();
+                break;
+            case 'blob':
+                request = ky(url, rest).blob();
+                break;
         }
+
+        return request.then(resp => resp, async (err: ky.HTTPError) => {
+            if (!(err instanceof ky.HTTPError)) {
+                throw err;
+            }
+            let ct = err.response.headers.get('content-type') || '';
+            let body;
+            try {
+                if (ct.includes('application/json')) {
+                    body = await err.response.json();
+                } else if (ct.includes('text')) {
+                    body = await err.response.text();
+                }
+            } catch { }
+
+            const e = new HttpError(err.response.status, err.response.statusText, err.response.url, body);
+            e.stack = err.stack;
+            throw e;
+        })
     }, {
         ssr,
         refreshClient,

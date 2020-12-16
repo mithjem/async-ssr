@@ -78,5 +78,5 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
         })
     }, (deps ?? []).concat(enabled, refreshClient))
 
-    return state
+    return enabled ? state : { loading: false }
 }

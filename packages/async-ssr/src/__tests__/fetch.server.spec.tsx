@@ -17,7 +17,7 @@ describe('useFetch', () => {
             </div>
         };
 
-        const { content } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+        const { content } = await renderToStringWithAsyncData(<App />, { renderFunction: renderToStaticMarkup });
 
 
         expect(content).toEqual('<div><span>Loading false</span><span>Id 1</span></div>');

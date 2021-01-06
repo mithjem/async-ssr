@@ -28,7 +28,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
     }
 
     const { ssr = true, type = 'json', refreshClient = true, ttl,
-        transform, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions<T>;
+        transform, enabled = true, ...rest } = (optionsOrDependencyList || {}) as FetchOptions<T>;
 
     const controller = useRef<AbortController | null>(null);
 

@@ -13,11 +13,12 @@ export interface FetchResult<T> {
     data?: T;
 }
 
-export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'>, LoaderOptions {
+export interface FetchOptions<T> extends Omit<RequestInit, 'abort' | 'url'>, LoaderOptions {
     type?: 'text' | 'blob' | 'json';
+    transform?: (data?: T) => any;
 }
 
-export function useFetch<T>(url: string, options?: FetchOptions, dep?: any[]): FetchResult<T>;
+export function useFetch<T>(url: string, options?: FetchOptions<T>, dep?: any[]): FetchResult<T>;
 export function useFetch<T>(url: string, dep: any[]): FetchResult<T>;
 export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependencyList?: any[]): FetchResult<T> {
 
@@ -26,7 +27,8 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', refreshClient = true, ttl, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ttl,
+        transform, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions<T>;
 
     const controller = useRef<AbortController | null>(null);
 
@@ -51,7 +53,7 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
                 break;
         }
 
-        return request.then(resp => resp, async (err: ky.HTTPError) => {
+        request = request.then(resp => resp, async (err: ky.HTTPError) => {
             if (!(err instanceof ky.HTTPError)) {
                 throw err;
             }
@@ -68,7 +70,14 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
             const e = new HttpError(err.response.status, err.response.statusText, err.response.url, body);
             e.stack = err.stack;
             throw e;
-        })
+        });
+
+        if (transform) {
+            return request.then(transform)
+        } else {
+            return request;
+        }
+
     }, {
         ssr,
         refreshClient,

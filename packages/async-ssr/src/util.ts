@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react';
+import stringify from 'fast-json-stable-stringify';
 
 
 export interface Deferred<T> {
@@ -57,3 +58,7 @@ export function makeCancelable<T, TResult1 = T, TResult2 = never>(promise: Promi
         hasCanceled = true;
     };
 };
+
+export function stableKey(a: any) {
+    return stringify(a)
+}

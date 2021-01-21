@@ -39,7 +39,7 @@ export function render(options: RenderOptions) {
 
         let helmet = Helmet.renderStatic();
 
-        const result = await renderToStringWithAsyncData(jsx, renderToString, cache);
+        const result = await renderToStringWithAsyncData(jsx, { renderFunction: renderToString, cache });
 
         ctx.body = html(helmet, webExtractor, result);
         ctx.type = 'text/html';

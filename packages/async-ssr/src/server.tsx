@@ -1,6 +1,8 @@
 import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./context";
 import React from 'react';
 import { Cache, MemCache } from "./cache";
+import { renderToString } from "react-dom/server";
+import { HttpError } from "./error";
 
 export class ServerAsyncQueue implements AsyncQueue {
     constructor(private _queue: RenderPromise) { }
@@ -16,9 +18,17 @@ export class ServerAsyncQueue implements AsyncQueue {
 
 }
 
+
+export interface StateEntry {
+    error?: any;
+    data?: any;
+}
+
+export type State = Record<string, StateEntry>
+
 class RenderPromise {
     queue: Array<{ key: string, promise: Promise<any> }> = [];
-    resolved: Record<string, { error?: any, data?: any }> = {};
+    resolved: State = {};
 
     constructor(private _cache: Cache) { }
 
@@ -68,8 +78,49 @@ class RenderPromise {
 }
 
 
+export type StateSerializer = (key: string, entry: StateEntry) => StateEntry;
 
-export function renderToStringWithAsyncData(tree: JSX.Element, renderFunction: (el: JSX.Element) => string, cache: Cache = new MemCache) {
+export interface RenderOptions {
+    renderFunction?: (el: JSX.Element) => string;
+    cache?: Cache;
+    serialize?: StateSerializer;
+}
+
+
+function serializeState(state: State, serializer?: StateSerializer) {
+    for (const key in state) {
+        const value = serializer?.(key, state[key]) ?? state[key];
+
+        if (value.error) {
+            const e = value.error;
+            if (e instanceof HttpError) {
+                value.error = {
+                    type: 'HttpError',
+                    statusCode: e.statusCode,
+                    message: e.message,
+                    url: e.url,
+                    body: e.body,
+                    stack: e.stack
+                }
+            } else if (e instanceof Error) {
+                value.error = {
+                    type: e.name,
+                    message: e.message,
+                    stack: e.stack
+                }
+            }
+        }
+
+        state[key] = value;
+    }
+
+    return state
+}
+
+export function renderToStringWithAsyncData(tree: JSX.Element, options: RenderOptions = {}) {
+
+    const { renderFunction = renderToString,
+        cache = new MemCache, serialize } = options;
 
     const promises = new RenderPromise(cache);
     let count = 0;
@@ -92,14 +143,14 @@ export function renderToStringWithAsyncData(tree: JSX.Element, renderFunction: (
     }
 
     return Promise.resolve().then(process).then(content => {
-        return new RenderResult(content, promises.resolved, count);
+        return new RenderResult(content, serializeState(promises.resolved, serialize), count);
     });
 }
 
 
 
 export class RenderResult {
-    constructor(public content: string, public data: Record<string, any>, public rounds: number) { }
+    constructor(public content: string, public data: State, public rounds: number) { }
 
     renderState(id = SHARED_STATE_KEY) {
         return `<script type="text/async-ssr-cache" id="${id}">${JSON.stringify(this.data)}</script>`

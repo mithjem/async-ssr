@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import useSSR from 'use-ssr'
 import { AsyncResult, getAsyncContext } from './context'
+import { makeCancelable } from './util'
 
 export interface LoaderResult<T> {
     data?: T;
@@ -64,7 +65,7 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
             return
         }
 
-        ctx.add(key, init, ttl).then(data => {
+        return makeCancelable(ctx.add(key, init, ttl), data => {
             setState({
                 loading: false,
                 data
@@ -77,5 +78,5 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
         })
     }, (deps ?? []).concat(enabled, refreshClient))
 
-    return state
+    return enabled ? state : { loading: false }
 }

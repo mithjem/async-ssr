@@ -19,7 +19,7 @@ describe('Server', () => {
                 </div>
             };
 
-            const { content } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+            const { content } = await renderToStringWithAsyncData(<App />, { renderFunction: renderToStaticMarkup });
 
             expect(content).toEqual('<div><span>Loading false</span><span>Name 200</span></div>');
 
@@ -36,7 +36,7 @@ describe('Server', () => {
                 </div>
             };
 
-            const { content } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+            const { content } = await renderToStringWithAsyncData(<App />, { renderFunction: renderToStaticMarkup });
 
             expect(content).toEqual('<div><span>Loading true</span></div>');
 
@@ -62,7 +62,7 @@ describe('Server', () => {
                 </div>
             };
 
-            const { content, rounds, data } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+            const { content, rounds, data } = await renderToStringWithAsyncData(<App />, { renderFunction: renderToStaticMarkup });
             expect(rounds).toEqual(2);
             expect(data).toEqual({ 'cache': { data: 200 }, 'cache2': { data: 42 } });
             expect(content).toEqual('<div><span>Loading false</span><span>Name 200</span><div>Child 42</div></div>');
@@ -79,7 +79,7 @@ describe('Server', () => {
                 </div>
             }
 
-            const { content, rounds, data } = await renderToStringWithAsyncData(<App />, renderToStaticMarkup);
+            const { content, rounds, data } = await renderToStringWithAsyncData(<App />, { renderFunction: renderToStaticMarkup });
 
             expect(rounds).toEqual(1);
             expect(data).toEqual({});

@@ -2,6 +2,7 @@ import { AsyncQueue, AsyncResult, getAsyncContext, SHARED_STATE_KEY } from "./co
 import { MemCache, Cache } from "./cache";
 import { deferred, Deferred, has } from "./util";
 import React from 'react';
+import { HttpError } from './error';
 
 
 export const MINIMUM_TTL = 1000;
@@ -20,10 +21,23 @@ export function AsyncManager(props: React.PropsWithChildren<AsyncManagerProps>) 
 }
 
 function loadState(stateId: string) {
-    const state = document.querySelector(`#${stateId}`);
-    if (!state) return {}
+    const stateEl = document.querySelector(`#${stateId}`);
+    if (!stateEl) return {}
     try {
-        return JSON.parse(state.textContent || '')
+        const data = JSON.parse(stateEl.textContent || '')
+        for (const key in data) {
+            const value = data[key];
+            if (value.error) {
+                const e = value.error;
+                switch (e.type) {
+                    case "HttpError":
+                        value.error = new HttpError(e.statusCode, e.message, e.url, e.body);
+                        value.error.stack = e.stack;
+                        break;
+                }
+            }
+        }
+        return data;
     } catch {
         return {}
     }

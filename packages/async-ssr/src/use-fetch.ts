@@ -3,6 +3,9 @@ import stringify from 'fast-json-stable-stringify';
 import { LoaderOptions, useLoader } from './use-loader';
 import ky from 'ky-universal';
 import { isCancel, omit } from './util';
+import { HttpError } from './error';
+
+
 
 export interface FetchResult<T> {
     loading: boolean;
@@ -10,11 +13,12 @@ export interface FetchResult<T> {
     data?: T;
 }
 
-export interface FetchOptions extends Omit<RequestInit, 'abort' | 'url'>, LoaderOptions {
+export interface FetchOptions<T> extends Omit<RequestInit, 'abort' | 'url'>, LoaderOptions {
     type?: 'text' | 'blob' | 'json';
+    transform?: (data?: T) => any;
 }
 
-export function useFetch<T>(url: string, options?: FetchOptions, dep?: any[]): FetchResult<T>;
+export function useFetch<T>(url: string, options?: FetchOptions<T>, dep?: any[]): FetchResult<T>;
 export function useFetch<T>(url: string, dep: any[]): FetchResult<T>;
 export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependencyList?: any[]): FetchResult<T> {
 
@@ -23,7 +27,8 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         optionsOrDependencyList = {};
     }
 
-    const { ssr = true, type = 'json', refreshClient = true, ttl, enabled, ...rest } = (optionsOrDependencyList || {}) as FetchOptions;
+    const { ssr = true, type = 'json', refreshClient = true, ttl,
+        transform, enabled = true, ...rest } = (optionsOrDependencyList || {}) as FetchOptions<T>;
 
     const controller = useRef<AbortController | null>(null);
 
@@ -34,11 +39,45 @@ export function useFetch<T>(url: string, optionsOrDependencyList?: any, dependen
         controller.current?.abort();
         controller.current = new AbortController();
         (rest as any).signal = controller.current.signal;
+
+        let request: Promise<any>;
         switch (type) {
-            case 'json': return ky(url, rest).json()
-            case 'text': return ky(url, rest).text() as any
-            case 'blob': return ky(url, rest).blob() as any
+            case 'json':
+                request = ky(url, rest).json();
+                break;
+            case 'text':
+                request = ky(url, rest).text();
+                break;
+            case 'blob':
+                request = ky(url, rest).blob();
+                break;
         }
+
+        request = request.then(resp => resp, async (err: ky.HTTPError) => {
+            if (!(err instanceof ky.HTTPError)) {
+                throw err;
+            }
+            let ct = err.response.headers.get('content-type') || '';
+            let body;
+            try {
+                if (ct.includes('application/json')) {
+                    body = await err.response.json();
+                } else if (ct.includes('text')) {
+                    body = await err.response.text();
+                }
+            } catch { }
+
+            const e = new HttpError(err.response.status, err.response.statusText, err.response.url, body);
+            e.stack = err.stack;
+            throw e;
+        });
+
+        if (transform) {
+            return request.then(transform)
+        } else {
+            return request;
+        }
+
     }, {
         ssr,
         refreshClient,

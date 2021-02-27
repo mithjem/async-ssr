@@ -48,6 +48,8 @@ export function useLoader<T>(key: string, init: () => Promise<T>, options: Loade
         return enabled ? { loading: true } : { loading: false }
     }
 
+
+
     const ctx = useContext(getAsyncContext())
 
     if (isServer) {
